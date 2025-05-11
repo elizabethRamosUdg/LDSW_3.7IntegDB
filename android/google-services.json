@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "864871087070",
+    "project_id": "ldswelizabethramos",
+    "storage_bucket": "ldswelizabethramos.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:864871087070:android:46c3db0d815224eb3d3b4f",
+        "android_client_info": {
+          "package_name": "com.example.ldsw_elizabeth_ramos"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAMXiZ6Ts9N0VstkWa8jKsubBEhtKBoxAU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
