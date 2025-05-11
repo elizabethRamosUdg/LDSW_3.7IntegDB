@@ -98,27 +98,72 @@ class _MoviesHomePageState extends State<MoviesHomePage> {
         // TRY THIS: Try changing the color here to a specific color (to
         // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
         // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.onPrimary,
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         // Here we take the value from the MoviesHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
         centerTitle: true,
       ),
       body: Center(
-        // Agregar mas peliculas
         child: Column(
           children: [
-            Text('Ingresa los datos que quieras capturar'),
-            TextField(),
-            Expanded(child: Text('Pelicula 1 ejemplo')),
+            // Texto en el top
+            Padding(
+              padding: EdgeInsets.all(24.24), // Espaciado uniforme
+              child: Text('Ingresa los datos que quieras capturar'),
+            ),
+            // Agregar mas peliculas
+            Padding(
+              padding: EdgeInsets.all(24.24), // Espaciado uniforme
+              child: TextField(),
+            ),
+            Padding(
+              padding: EdgeInsets.all(24.24), // Espaciado uniforme
+              child:  Text('Peliculas en la coleccion.'),,
+            ),
+            // Cargar peliculas en la coleccion
+            Expanded(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: getMoviesStream(), // Obtenemos nuestras peliculas
+                builder: (context, snapshot) {
+                  // En caso de que no se hayan cargado todavia los datos
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+
+                  // En caso de estear vacio
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return Center(child: Text('No hay peliculas aun'));
+                  }
+
+                  // Obtenemos la lista de documentos desde el snapshot
+                  List<QueryDocumentSnapshot> movieDocuments =
+                      snapshot.data!.docs;
+
+                  return ListView.builder(
+                    // Total de items
+                    itemCount: movieDocuments.length,
+                    // Creamos cada item
+                    itemBuilder: (context, index) {
+                      // Leemos el documento actual
+                      final document = movieDocuments[index];
+                      // Vamos a mapear los datos
+                      final data = document.data() as Map<String, dynamic>;
+                      // Cargamos los datos y los renderisamos usando ListTitle
+                      final title = data['title'] ?? 'Untitled';
+                      return ListTile(
+                        leading: Text(index.toString()),
+                        title: Text(title),
+                        subtitle: Text(title),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),
-      /*floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.*/
     );
   }
 }
