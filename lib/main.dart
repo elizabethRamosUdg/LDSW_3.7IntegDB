@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  // Vamos a inizializar la configuracion, eso incluye los datos de coneccion con
+  // nuestra app en la nube
+  WidgetsFlutterBinding.ensureInitialized();
+  // Vamos a esperar que el async obtenga su promise lo que quiere decir que
+  // la configuracion esta echa
+  await Firebase.initializeApp();
+  // Correr la app
+  runApp(const LDSWApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class LDSWApp extends StatelessWidget {
+  const LDSWApp({super.key});
 
   // This widget is the root of your application.
   @override
@@ -30,13 +39,15 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MoviesHomePage(title: 'Coleccion de Peliculas'),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+// Usamos un stateful widget para poder cambiar el estado de cada objeto de \
+// pelicula
+class MoviesHomePage extends StatefulWidget {
+  const MoviesHomePage({super.key, required this.title});
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -50,21 +61,28 @@ class MyHomePage extends StatefulWidget {
   final String title;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<MoviesHomePage> createState() => _MoviesHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _MoviesHomePageState extends State<MoviesHomePage> {
+  // Input de texto para nuevos capturar datos
+  final TextEditingController _controller = TextEditingController();
+  // Poder leer y crear nuevos documentos a nuestra coleccion en firebase
+  final CollectionReference _movies = FirebaseFirestore.instance.collection(
+    'movies',
+  );
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  // Leer peliculas que existen
+  Stream<QuerySnapshot> getMoviesStream() {
+    return _movies.snapshots();
+  }
+
+  // Agrega nueva pelicula
+  void _addMovie(String title) {
+    if (title.trim().isNotEmpty) {
+      _movies.add({'title': title.trim()});
+      _controller.clear();
+    }
   }
 
   @override
@@ -80,43 +98,27 @@ class _MyHomePageState extends State<MyHomePage> {
         // TRY THIS: Try changing the color here to a specific color (to
         // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
         // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
+        backgroundColor: Theme.of(context).colorScheme.onPrimary,
+        // Here we take the value from the MoviesHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
+        centerTitle: true,
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+        // Agregar mas peliculas
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
+          children: [
+            Text('Ingresa los datos que quieras capturar'),
+            TextField(),
+            Expanded(child: Text('Pelicula 1 ejemplo')),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
+      /*floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
         tooltip: 'Increment',
         child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ), // This trailing comma makes auto-formatting nicer for build methods.*/
     );
   }
 }
